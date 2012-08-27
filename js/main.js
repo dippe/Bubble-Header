@@ -147,7 +147,7 @@ function tick(){
 			s.cache(-1*size,-1*size,size*2,size*2);
 
 			tween = createjs.Tween.get( s );
-			tween.wait(wait).to({y:(400+randomYOffset)},time, createjs.Ease.bounceOut );
+			tween.wait(wait).to({y:(globals.STAGE_HEIGHT+randomYOffset),alpha:0.2},time, createjs.Ease.bounceOut );
 
 			tween.loop=true;
 
@@ -179,10 +179,10 @@ function tick(){
 			s.x	= x;
 			s.y	= y;
 			s.alpha = 0;
-			s.cache(-1*size,-1*size,size*2,size*2);
+			// s.cache(-1*size,-1*size,size*2,size*2);
 
 			tween = createjs.Tween.get( s );
-			tween.wait(wait).to({alpha:1},1000).to({alpha:0,x:(x+50),scale:1.5},3000, createjs.Ease.bounceOut );
+			tween.wait(wait).to({alpha:1,x:(x+25)},1000).to({alpha:0,x:(x+100)},4000 );
 
 			tween.loop=true;
 
