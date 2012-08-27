@@ -44,14 +44,9 @@
 	*/
 
 	globals.canvas;			// the Main canvas
-	globals.stage;			// Main stage
 
-	// Layers
-	globals.layerMainContainer;		// main container of the layers (~stage)
-	globals.layerBubble;
-	
-	// Bubbles
-	globals.bubbleArr				= new Array();
+	// ez egyelore kell, mert a tick-ben undefined, ha berakom az obj-ba
+	globals.stage;			// Main stage
 
 
 	/*
@@ -72,55 +67,53 @@
 /*
 *	the Main init function
 */
-$(document).ready( function() {
-
-	/* Get the globals.canvas and set the its size.
-	*		(The size setting works only this way. why??)
-	*/
-	globals.canvas		= $('#container').get(0);
-	globals.canvas.width	= globals.STAGE_WIDTH;
-	globals.canvas.height	= globals.STAGE_HEIGHT;
-
-	/* A stage is the root level Container for a display list. Each time its tick method is called, it will render its display list to its target globals.canvas. */
-	globals.stage		= new createjs.Stage(globals.canvas);
-
-
-	/*
-	* Create layers in proper order
-	*/
-
-	// *** Create main layers ***
-	globals.layerMainContainer	= new createjs.Container();
-	globals.stage.addChild(globals.layerMainContainer);
-
-
-	// *** Fill the layers ***
-
-	game.Main.bubble();
-	// game.Main.havacska();
-
-	// set the global ticker which used by tween.js and easeljs animations
-	createjs.Ticker.setFPS(30);
-	createjs.Ticker.addListener(tick);
-
-}
+$(document).ready( 
+	function() {
+		var header1	= new dippe.BubbleHeader( $('#container').get(0), globals.STAGE_WIDTH, globals.STAGE_HEIGHT, 1 );
+		var header2	= new dippe.BubbleHeader( $('#container2').get(0), globals.STAGE_WIDTH, globals.STAGE_HEIGHT, 0 );
+	}
 );
 // *** end $(document).ready function
 
-function tick(){
-	globals.stage.update();
-}
-
-
-
-/*
-*	The Main object
-*/
 
 (function(namespace){
-	var Main	= new Object;
 
-	Main.havacska	= function(){
+	var BubbleHeader	= function( DOMCanvas, width, height, effect ){
+
+		/* A stage is the root level Container for a display list. Each time its tick method is called, it will render its display list to its target globals.canvas. */
+		globals.stage		= new createjs.Stage(DOMCanvas);
+        DOMCanvas.width    = globals.STAGE_WIDTH;
+        DOMCanvas.height   = globals.STAGE_HEIGHT;
+
+		// *** generate header ***
+		switch( effect ){
+			case 1: this.effectRain();
+				break;
+			case 0: 
+			default: this.effectBubble();
+				break;
+		}
+
+		console.log(globals.stage);
+		
+		// set the global ticker which used by tween.js and easeljs animations
+		createjs.Ticker.setFPS(30);
+		createjs.Ticker.addListener(this.tick);
+		globals.stage.update();
+	}
+
+	BubbleHeader.stage	= null;
+	BubbleHeader.shape	= null;
+	BubbleHeader.bubbleArr	= Array();
+
+
+	BubbleHeader.prototype.tick = function(){
+		// console.log(this.a);
+		globals.stage.update();
+	}
+
+
+	BubbleHeader.prototype.effectRain	= function(){
 		for(var i=0;i<100;i++){
 
 			var g		= new createjs.Graphics;
@@ -134,14 +127,14 @@ function tick(){
 			var randomYOffset	= Math.round(Math.random()*-30);
 
 
-			g.beginFill( createjs.Graphics.getRGB( '0xdddddd', 1/size ) );
+			g.beginFill( createjs.Graphics.getRGB( '0xcccccc', 1/size ) );
 			g.setStrokeStyle(1);
 			g.beginStroke('#eee');
 			g.drawCircle( 0, 0, size );
 			g.endStroke();
 
 
-			var s	= new createjs.Shape(g);
+			s	= new createjs.Shape(g);
 			s.x	= x;
 			s.y	= y;
 			s.cache(-1*size,-1*size,size*2,size*2);
@@ -151,12 +144,14 @@ function tick(){
 
 			tween.loop=true;
 
-			globals.layerMainContainer.addChild(s);
+			globals.stage.addChild(s);
+			// this.bubbleArr[i].shape	= s;
 
 		}
 	}
 
-	Main.bubble	= function(){
+	
+	BubbleHeader.prototype.effectBubble	= function(){
 		for(var i=0;i<50;i++){
 
 			var g		= new createjs.Graphics;
@@ -175,7 +170,7 @@ function tick(){
 			g.endStroke();
 
 
-			var s	= new createjs.Shape(g);
+			s	= new createjs.Shape(g);
 			s.x	= x;
 			s.y	= y;
 			s.alpha = 0;
@@ -186,7 +181,8 @@ function tick(){
 
 			tween.loop=true;
 
-			globals.layerMainContainer.addChild(s);
+			globals.stage.addChild(s);
+			// this.bubbleArr[i].shape	= s;
 
 		}
 	}
@@ -198,7 +194,7 @@ function tick(){
 	*	Add cache to every cloud shape;
 	*	Comment: The caching will be slow if the cached graphic is too big. 
 	*/
-	Main.turnOnCache	= function( sizeX, sizeY ){
+	BubbleHeader.prototype.turnOnCache	= function( sizeX, sizeY ){
 		// set the defult size
 		if (sizeX==0){
 			sizeX=300;
@@ -207,20 +203,20 @@ function tick(){
 
 		for  ( var i=0; i<globals.cloudArr.length; i++){
 			//turn on the cache
-			globals.cloudArr[i].shape.cache(0,0,sizeX,sizeY);					// NA EZÉRT SZÍVÁS A DEFAULT FELHŐ OFFSET
+			this.bubbleArr[i].shape.cache(0,0,sizeX,sizeY);					// NA EZÉRT SZÍVÁS A DEFAULT FELHŐ OFFSET
 		}
 	}
 
 
-	Main.turnOffCache	= function(){
+	BubbleHeader.prototype.turnOffCache	= function(){
 
 		for  ( var i=0; i<globals.cloudArr.length; i++){
 			//turn on the cache
-			globals.cloudArr[i].shape.uncache();
+			this.bubbleArr[i].shape.uncache();
 		}
 	}
 
 
-namespace.Main	= Main;
-}(game || (game = {})));
-var game;
+namespace.BubbleHeader	= BubbleHeader;
+}(dippe || (dippe = {})));
+var dippe;
