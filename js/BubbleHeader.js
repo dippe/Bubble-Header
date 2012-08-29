@@ -29,28 +29,8 @@
 /*
 * Global variables
 */
-	var globals	= {};
+globalBubbleHeaderArr	= Array();
 
-	globals.canvas;			// the Main canvas
-
-	// ez egyelore kell, mert a tick-ben undefined, ha berakom az obj-ba
-	globals.stage;			// Main stage
-
-
-/*
-*	the Main init function
-*/
-$(document).ready( 
-	function() {
-
-		var elem1	= $('#container1').get(0);
-		var elem2	= $('#container2').get(0);
-
-		var header2	= new dippe.BubbleHeader( elem2, 1 );
-		var header1	= new dippe.BubbleHeader( elem1, 0 );
-	}
-);
-// *** end $(document).ready function
 
 
 /*
@@ -59,11 +39,15 @@ $(document).ready(
 *
 *	The canvas size will be set to the element CSS size, which must be given in px!!. If it is not set then will be set to the default 900x100px
 *
+*	Multiple effect per page is allowed :)
+*
 */
 (function(namespace){
 
 	//  *** BubbleHeader ***
 	var BubbleHeader	= function( DOMCanvas, effect ){
+
+		globalBubbleHeaderArr.push( this );
 
 		style		= window.getComputedStyle(DOMCanvas)
     	cssWidth	= style.getPropertyValue('width');
@@ -77,7 +61,7 @@ $(document).ready(
 		this.STAGE_HEIGHT	= typeof tmpHeight == "undefined" ? this.STAGE_HEIGHT : tmpHeight;
 
 		/* A stage is the root level Container for a display list. Each time its tick method is called, it will render its display list to its target globals.canvas. */
-		globals.stage		= new createjs.Stage(DOMCanvas);
+		this.stage		= new createjs.Stage(DOMCanvas);
         DOMCanvas.width    = this.STAGE_WIDTH;
         DOMCanvas.height   = this.STAGE_HEIGHT;
 
@@ -92,9 +76,10 @@ $(document).ready(
 
 		
 		// set the global ticker which used by tween.js and easeljs animations
+		var	thisBubbleHeader	= this;
+
 		createjs.Ticker.setFPS(30);
 		createjs.Ticker.addListener(this.tick);
-		globals.stage.update();
 
 		console.log('BubbleHeader started (x,y):' + (this.STAGE_WIDTH + ',' + this.STAGE_HEIGHT));
 	}
@@ -107,10 +92,15 @@ $(document).ready(
 	BubbleHeader.STAGE_HEIGHT	= 100;
 
 
-	//  *** BubbleHeader methods ***
+	/*
+	*	*** BubbleHeader methods ***
+	*/
+
 	BubbleHeader.prototype.tick = function(){
 		// console.log(this.a);
-		globals.stage.update();
+		for( i=0; i<globalBubbleHeaderArr.length; i++){
+			globalBubbleHeaderArr[i].stage.update();
+		}
 	}
 
 
@@ -145,7 +135,7 @@ $(document).ready(
 
 			tween.loop=true;
 
-			globals.stage.addChild(s);
+			this.stage.addChild(s);
 			// this.bubbleArr[i].shape	= s;
 
 		}
@@ -182,7 +172,7 @@ $(document).ready(
 
 			tween.loop=true;
 
-			globals.stage.addChild(s);
+			this.stage.addChild(s);
 			// this.bubbleArr[i].shape	= s;
 
 		}

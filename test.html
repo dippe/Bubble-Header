@@ -6,26 +6,33 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
 
-	<!-- 
-	Hosted version
-
-	Latest stable without namespace:
-	<script src="http://code.createjs.com/easeljs-0.4.1.min.js"></script>
-	<script src="http://code.createjs.com/tweenjs-0.2.0.min.js"></script>
-	-->
-
-
-	<!-- Local version of the frameworks -->
+	<!-- easeljs and tweenjs needed by the BubbleHeader -->
 	<script src="js/lib/easeljs-NEXT.min.js"></script>
 	<script src="js/lib/tweenjs-NEXT.min.js"></script>
- 	<script src="js/lib/jquery-1.7.2.min.js"></script>
 
-	<!-- demo -->
+	<!-- load the BubbleHeader lib -->
 	<script src="js/BubbleHeader.js"></script>
+
+	<script type="text/javascript">
+
+		/*
+		*	initialize the effects
+		*/
+		var	initEffect 	= function() {
+			var elem1	= document.getElementById('container1');
+			var elem2	= document.getElementById('container2');
+
+			var header2	= new dippe.BubbleHeader( elem2, 1 );
+			var header1	= new dippe.BubbleHeader( elem1, 0 );
+		}
+
+	</script>
+
+
 
 </head>
 	
-<body>
+<body onLoad="initEffect()">
 
 	Dippe's bubble header test
 
