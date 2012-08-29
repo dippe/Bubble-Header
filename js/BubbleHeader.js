@@ -29,19 +29,7 @@
 /*
 * Global variables
 */
-	var game	= {};
 	var globals	= {};
-
-	/*
-	*	CONSTS
-	*/
-
-	globals.STAGE_WIDTH				= 900;
-	globals.STAGE_HEIGHT			= 100;
-	
-	/*
-	*	GAME VARIABLES
-	*/
 
 	globals.canvas;			// the Main canvas
 
@@ -49,41 +37,49 @@
 	globals.stage;			// Main stage
 
 
-	/*
-	*	DEVELOPMENT VARIABLES
-	*/	
-
-	// Development: variables for code running time measurement	
-	var programStartDate		= new Date;
-	var programStartTime		= programStartDate.getTime();
-	var lastLogT				= programStartTime;
-	
-	// for measuring FPS
-	var currDateFPS				= new Date;
-	var currTimeFPS				= currDateFPS.getTime();
-
-
-
 /*
 *	the Main init function
 */
 $(document).ready( 
 	function() {
-		var header1	= new dippe.BubbleHeader( $('#container').get(0), globals.STAGE_WIDTH, globals.STAGE_HEIGHT, 1 );
-		var header2	= new dippe.BubbleHeader( $('#container2').get(0), globals.STAGE_WIDTH, globals.STAGE_HEIGHT, 0 );
+
+		var elem1	= $('#container1').get(0);
+		var elem2	= $('#container2').get(0);
+
+		var header2	= new dippe.BubbleHeader( elem2, 1 );
+		var header1	= new dippe.BubbleHeader( elem1, 0 );
 	}
 );
 // *** end $(document).ready function
 
 
+/*
+*	Using:
+*	var tmp	= new dippe.BubbleHeader( document.getElementById('something') );
+*
+*	The canvas size will be set to the element CSS size, which must be given in px!!. If it is not set then will be set to the default 900x100px
+*
+*/
 (function(namespace){
 
-	var BubbleHeader	= function( DOMCanvas, width, height, effect ){
+	//  *** BubbleHeader ***
+	var BubbleHeader	= function( DOMCanvas, effect ){
+
+		style		= window.getComputedStyle(DOMCanvas)
+    	cssWidth	= style.getPropertyValue('width');
+    	cssHeight	= style.getPropertyValue('height');
+
+    	// get the css and remove the "px" from the end
+    	var tmpWidth	= Number( cssWidth.substr(0,cssWidth.length-2) );
+    	var tmpHeight	= Number( cssHeight.substr(0,cssHeight.length-2) );
+
+		this.STAGE_WIDTH	= typeof tmpWidth == "undefined" ? this.STAGE_WIDTH : tmpWidth;
+		this.STAGE_HEIGHT	= typeof tmpHeight == "undefined" ? this.STAGE_HEIGHT : tmpHeight;
 
 		/* A stage is the root level Container for a display list. Each time its tick method is called, it will render its display list to its target globals.canvas. */
 		globals.stage		= new createjs.Stage(DOMCanvas);
-        DOMCanvas.width    = globals.STAGE_WIDTH;
-        DOMCanvas.height   = globals.STAGE_HEIGHT;
+        DOMCanvas.width    = this.STAGE_WIDTH;
+        DOMCanvas.height   = this.STAGE_HEIGHT;
 
 		// *** generate header ***
 		switch( effect ){
@@ -94,19 +90,24 @@ $(document).ready(
 				break;
 		}
 
-		console.log(globals.stage);
 		
 		// set the global ticker which used by tween.js and easeljs animations
 		createjs.Ticker.setFPS(30);
 		createjs.Ticker.addListener(this.tick);
 		globals.stage.update();
+
+		console.log('BubbleHeader started (x,y):' + (this.STAGE_WIDTH + ',' + this.STAGE_HEIGHT));
 	}
 
-	BubbleHeader.stage	= null;
-	BubbleHeader.shape	= null;
-	BubbleHeader.bubbleArr	= Array();
+	//  *** BubbleHeader properties ***
+	BubbleHeader.stage			= null;
+	BubbleHeader.shape			= null;
+	BubbleHeader.bubbleArr		= Array();
+	BubbleHeader.STAGE_WIDTH	= 900;
+	BubbleHeader.STAGE_HEIGHT	= 100;
 
 
+	//  *** BubbleHeader methods ***
 	BubbleHeader.prototype.tick = function(){
 		// console.log(this.a);
 		globals.stage.update();
@@ -117,7 +118,7 @@ $(document).ready(
 		for(var i=0;i<100;i++){
 
 			var g		= new createjs.Graphics;
-			var x		= Math.round(Math.random()*globals.STAGE_WIDTH);
+			var x		= Math.round(Math.random()*this.STAGE_WIDTH);
 			// var y		= Math.round(Math.random()*500);
 			var y		= -12;
 			var size	= Math.round(Math.random()*5)+1;
@@ -140,7 +141,7 @@ $(document).ready(
 			s.cache(-1*size,-1*size,size*2,size*2);
 
 			tween = createjs.Tween.get( s );
-			tween.wait(wait).to({y:(globals.STAGE_HEIGHT+randomYOffset),alpha:0.2},time, createjs.Ease.bounceOut );
+			tween.wait(wait).to({y:(this.STAGE_HEIGHT+randomYOffset),alpha:0.2},time, createjs.Ease.bounceOut );
 
 			tween.loop=true;
 
@@ -155,8 +156,8 @@ $(document).ready(
 		for(var i=0;i<50;i++){
 
 			var g		= new createjs.Graphics;
-			var x		= Math.round(Math.random()*globals.STAGE_WIDTH);
-			var y		= Math.round(Math.random()*globals.STAGE_HEIGHT);
+			var x		= Math.round(Math.random()*this.STAGE_WIDTH);
+			var y		= Math.round(Math.random()*this.STAGE_HEIGHT);
 			var size	= Math.round(Math.random()*50);
 			var wait	= Math.round(Math.random()*3000);
 
